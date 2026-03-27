@@ -2,13 +2,14 @@ import json
 import os
 import sys
 from typing import Dict, Any
+from dotenv import load_dotenv
 from openai import OpenAI
 
 class IdeaStructurer:
     def __init__(
         self,
         api_key: str,
-        model: str = "gpt-5.3",
+        model: str = "gpt-4.1-mini",
         temperature: float = 0.3,
         max_tokens: int = 800
     ):
@@ -26,19 +27,11 @@ class IdeaStructurer:
 
         Return ONLY valid JSON in the following format:
         {{
-            "idea_name": "",
-            "one_sentence": "",
             "problem": "",
-            "target_customer": "",
-            "customer_segment": "",
-            "value_proposition": "",
             "solution": "",
             "existing_alternatives": "",
-            "revenue_model": "",
-            "market_type": "",
             "assumptions": [],
-            "risks": [],
-            "keywords": []
+            "risks": []
         }}
         """
 
@@ -46,6 +39,7 @@ class IdeaStructurer:
             model=self.model,
             temperature=self.temperature,
             max_tokens=self.max_tokens,
+            response_format={"type": "json_object"},
             messages=[
                 {"role": "system", "content": "You are a startup analyst."},
                 {"role": "user", "content": prompt}
@@ -61,7 +55,8 @@ class IdeaStructurer:
             print(content)
             return {}
 
-if __name__ == "__main__":
+def run() -> None:
+    load_dotenv()
     if len(sys.argv) > 1:
         idea = " ".join(sys.argv[1:])
     else:
@@ -73,9 +68,12 @@ if __name__ == "__main__":
 
     structurer = IdeaStructurer(
         api_key=api_key,
-        model="gpt-5.3",
+        model="gpt-4.1-mini",
         temperature=0.2
     )
 
     result = structurer.structure_idea(idea)
     print(json.dumps(result, indent=4))
+
+if __name__ == "__main__":
+    run()
